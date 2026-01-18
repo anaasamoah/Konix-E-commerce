@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konix Markit — Cart</title>
+    <style>
+        :root{ --accent:#58b710; --muted:#6b7280; --card:#fff; }
+        body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f3f4f6; color:#111; margin:0;}
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .container{max-width:1100px;margin:0 auto;padding:1rem;}
+        header.navbar{background:#fbf6e6;box-shadow:3px 3px 5px rgba(0,0,0,0.08);position:sticky;top:0;z-index:100}
+        .navbar-top{display:flex;align-items:center;gap:0.5rem;}
+        .brand{display:flex;align-items:center;gap:.6rem}
+        .brand img{height:36px}
+
+        /* sms and cart badges (consistent site-wide) */
+        .sms, .cart { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .4rem; border-radius:6px; color:#333; }
+        .sms:hover, .cart:hover { background: rgba(0,0,0,0.03); }
+        .count-sms, .count-cart { display:inline-block; background:tomato; color:#fff; font-size:.75rem; padding:.12rem .45rem; border-radius:999px; line-height:1; vertical-align:middle; margin-left:0.2rem; }
+
+        .cart-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+        .cart-card{background:var(--card);padding:1rem;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:.85rem;text-align:left;border-bottom:1px solid #eef2f7;vertical-align:middle}
+        th{color:var(--muted);font-weight:600}
+        .prod{display:flex;gap:.75rem;align-items:center}
+        .prod img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+        .qty{display:flex;align-items:center;gap:.4rem}
+        .qty button{border:1px solid #e5e7eb;background:#fff;padding:.35rem .5rem;border-radius:6px;cursor:pointer}
+        .price{font-weight:700}
+        .muted{color:var(--muted)}
+        .empty{padding:2rem;text-align:center;color:var(--muted)}
+        .cart-actions{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;gap:1rem}
+        .btn{background:var(--accent);color:#fff;padding:.6rem 1rem;border-radius:10px;border:none;cursor:pointer}
+        .btn.ghost{background:transparent;color:var(--muted);border:1px solid #e5e7eb}
+        .summary{min-width:220px}
+        .summary .row{display:flex;justify-content:space-between;padding:.5rem 0}
+        @media (max-width:800px){
+            .cart-title{flex-direction:column;align-items:flex-start;gap:.6rem}
+            th:nth-child(3),td:nth-child(3){display:none}
+            .summary{width:100%}
+            .cart-actions{flex-direction:column;align-items:stretch}
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-top container" style="display:flex;align-items:center;gap:1rem;">
+            <a class="brand" href="index.html"><img src="/img/logos/konix logo 1.png" alt="Konix"></a>
+            <div style="margin-left:auto;display:flex;gap:.6rem;align-items:center">
+                <a class="sms" href="sms.html">🔔<sup class="count-sms">0</sup></a>
+                <a class="cart" href="cart.html">🛒<sup class="count-cart">0</sup></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="cart-title">
+            <h1>Shopping Cart</h1>
+            <div class="muted">Manage items in your cart</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:1rem;align-items:start">
+            <div class="cart-card" id="cart-area">
+                <div id="cart-list"></div>
+            </div>
+
+            <aside class="cart-card summary">
+                <h3>Order Summary</h3>
+                <div id="summary-lines"></div>
+                <div style="border-top:1px dashed #e6e9ee;margin-top:.6rem;padding-top:.6rem">
+                    <div class="row" style="display:flex;justify-content:space-between"><strong>Total</strong><strong id="total">GH₵0.00</strong></div>
+                </div>
+                <div style="margin-top:1rem;display:flex;gap:.5rem">
+                    <button class="btn" id="checkout">Checkout</button>
+                    <button class="btn ghost" id="clear">Clear</button>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        // Cart page script — reads/writes `konix_cart_items` in localStorage
+        function getCart(){
+            try{ return JSON.parse(localStorage.getItem('konix_cart_items')||'[]') }catch(e){return[]}
+        }
+        function setCart(items){
+            localStorage.setItem('konix_cart_items', JSON.stringify(items));
+            // keep the legacy badge/count key in sync (total quantity)
+            try{
+                const total = (items || []).reduce((s,i)=>s + (Number(i.qty)||0), 0);
+                localStorage.setItem('konix_cart', String(total));
+                document.querySelectorAll('.count-cart').forEach(x=>x.textContent = String(total));
+            }catch(e){ /* ignore */ }
+            render();
+        }
+
+        function format(n){ return 'GH₵' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+        function render(){
+            const list = getCart();
+            const container = document.getElementById('cart-list');
+            const summary = document.getElementById('summary-lines');
+            container.innerHTML = '';
+            summary.innerHTML = '';
+            if(!list || list.length===0){ container.innerHTML = '<div class="empty"><p>Your cart is empty.</p><p><a href="index.html" class="btn">Continue shopping</a></p></div>'; document.getElementById('total').textContent = format(0); return; }
+
+            // build table
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            thead.innerHTML = '<tr><th>Product</th><th>Qty</th><th>Price</th><th></th></tr>';
+            table.appendChild(thead);
+            const tbody = document.createElement('tbody');
+            let subtotal = 0;
+            list.forEach(item=>{
+                const tr = document.createElement('tr');
+                const nameTd = document.createElement('td');
+                nameTd.innerHTML = `<div class="prod"><img src="${item.img||'/img/featured/double door fridge (3).jpg'}" alt=""><div><div><strong>${item.name}</strong></div><div class="muted">${item.desc||''}</div></div></div>`;
+                const qtyTd = document.createElement('td');
+                qtyTd.innerHTML = `<div class="qty"><button data-id="${item.id}" class="dec">−</button><span id="q-${item.id}">${item.qty}</span><button data-id="${item.id}" class="inc">＋</button></div>`;
+                const priceTd = document.createElement('td');
+                priceTd.innerHTML = `<div class="price">${format(item.price * item.qty)}</div><div class="muted">${format(item.price)} each</div>`;
+                const rmTd = document.createElement('td');
+                rmTd.innerHTML = `<button data-id="${item.id}" class="btn ghost remove">Remove</button>`;
+                tr.appendChild(nameTd); tr.appendChild(qtyTd); tr.appendChild(priceTd); tr.appendChild(rmTd);
+                tbody.appendChild(tr);
+                subtotal += item.price * item.qty;
+            });
+            table.appendChild(tbody);
+            container.appendChild(table);
+
+            // summary lines
+            const subLine = document.createElement('div'); subLine.className='row'; subLine.innerHTML = `<span>Subtotal</span><span>${format(subtotal)}</span>`; summary.appendChild(subLine);
+            const shipping = 0; const shipLine = document.createElement('div'); shipLine.className='row'; shipLine.innerHTML = `<span>Shipping</span><span>${format(shipping)}</span>`; summary.appendChild(shipLine);
+            document.getElementById('total').textContent = format(subtotal + shipping);
+
+            // wire buttons
+            document.querySelectorAll('.inc').forEach(b=>b.addEventListener('click', e=>changeQty(e.target.dataset.id, 1)));
+            document.querySelectorAll('.dec').forEach(b=>b.addEventListener('click', e=>changeQty(e.target.dataset.id, -1)));
+            document.querySelectorAll('.remove').forEach(b=>b.addEventListener('click', e=>removeItem(e.target.dataset.id)));
+        }
+
+        function changeQty(id, delta){
+            const cart = getCart();
+            const idx = cart.findIndex(i=>String(i.id)===String(id)); if(idx===-1) return;
+            cart[idx].qty = Math.max(0, (cart[idx].qty||1) + delta);
+            if(cart[idx].qty===0) cart.splice(idx,1);
+            setCart(cart);
+        }
+
+        function removeItem(id){ const cart = getCart().filter(i=>String(i.id)!==String(id)); setCart(cart); }
+
+        document.getElementById('clear').addEventListener('click', function(){ if(confirm('Clear cart?')){ setCart([]); } });
+        document.getElementById('checkout').addEventListener('click', function(){ const cart=getCart(); if(!cart || cart.length===0){ alert('Your cart is empty'); return; } // navigate to checkout page which reads konix_cart_items
+            window.location.href = 'checkout.html'; });
+
+        // seed helper: if konix_cart_count exists but no items, optionally create sample items for demo
+        (function maybeSeed(){
+            const items = getCart();
+            if(items.length===0 && localStorage.getItem('konix_cart') && Number(localStorage.getItem('konix_cart'))>0){
+                // create placeholder items matching count
+                const count = Number(localStorage.getItem('konix_cart'));
+                const sample = [];
+                for(let i=1;i<=Math.min(count,5);i++) sample.push({id:'demo-'+i,name:'Sample product '+i,desc:'Demo item',price:99.99,qty:1,img:'/img/featured/double door fridge (3).jpg'});
+                localStorage.setItem('konix_cart_items', JSON.stringify(sample));
+            }
+            render();
+            // update site-wide badges
+            document.querySelectorAll('.count-cart').forEach(x=>x.textContent = parseInt(localStorage.getItem('konix_cart')||'0',10));
+            document.querySelectorAll('.count-sms').forEach(x=>x.textContent = parseInt(localStorage.getItem('konix_sms')||'0',10));
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contact Us — Konix Markit</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#f7f7f7;color:#222}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:1rem}
+    header.navbar{background:#fbf6e6;box-shadow:3px 3px 5px rgba(0,0,0,0.08);position:sticky;top:0;z-index:100}
+    .navbar-top{display:flex;align-items:center;gap:0.5rem;padding:.6rem 1rem}
+    .brand img{height:36px}
+    .sms, .cart { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .4rem; border-radius:6px; color:#333; }
+    .count-sms, .count-cart { display:inline-block; background:tomato; color:#fff; font-size:.75rem; padding:.12rem .45rem; border-radius:999px; line-height:1; vertical-align:middle; margin-left:0.2rem; }
+
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:1rem;margin-top:1rem}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}}
+    .card{background:#fff;padding:1rem;border-radius:10px;box-shadow:0 8px 18px rgba(10,10,10,0.04)}
+    label{display:block;margin-top:.5rem;font-weight:600}
+    input[type="text"], input[type="email"], input[type="tel"], select, textarea{width:100%;padding:.6rem;border:1px solid #ddd;border-radius:6px;margin-top:.25rem}
+    .btn{background:#111;color:#fff;padding:.7rem 1rem;border-radius:8px;border:none;cursor:pointer;margin-top:.75rem}
+    .muted{color:#6b7280}
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-top container">
+      <a class="brand" href="index.html"><img src="/img/logos/konix logo 1.png" alt="Konix"></a>
+      <div style="margin-left:auto;display:flex;gap:.6rem;align-items:center">
+        <a class="sms" href="sms.html">🔔<sup class="count-sms">0</sup></a>
+        <a class="cart" href="cart.html">🛒<sup class="count-cart">0</sup></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Contact Us</h2>
+    <div class="layout">
+      <section>
+        <div class="card">
+          <p class="muted">Have a question, feedback or need help with an order? Send us a message and we'll get back to you within 24 hours.</p>
+          <form id="contactForm">
+            <label for="name">Full name</label>
+            <input id="name" type="text" required>
+
+            <label for="email">Email</label>
+            <input id="email" type="email" required>
+
+            <label for="phone">Phone (optional)</label>
+            <input id="phone" type="tel">
+
+            <label for="subject">Subject</label>
+            <input id="subject" type="text" required>
+
+            <label for="message">Message</label>
+            <textarea id="message" rows="6" placeholder="How can we help?" required></textarea>
+
+            <div style="display:flex;gap:.6rem;align-items:center">
+              <button class="btn" type="submit">Send message</button>
+              <button class="btn" type="button" id="resetBtn" style="background:#666">Reset</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <aside>
+        <div class="card">
+          <h3>Other ways to reach us</h3>
+          <p class="muted">Call: +233 54 585 4976<br>Email: asamoahbismark39@gmail.com</p>
+          <hr style="margin:1rem 0">
+          <h4>Visit Us</h4>
+          <p class="muted">Office hours: Mon–Sat, 8am–5pm<br>Address: Nyanyano Kakraba, Kasoa</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+  </main>
+
+  <style>
+    /* footer styles */
+    .site-footer { background: #0b1220; color: #cbd5e1; padding: 3rem 0 1.5rem; margin-top: 2rem; font-size: 0.95rem; }
+    .site-footer .footer-inner { max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; align-items: start; }
+    .site-footer h4 { color: #fff; margin-bottom: 0.6rem; font-size: 1rem; }
+    .site-footer p, .site-footer li { color: #cbd5e1; line-height: 1.5; }
+    .site-footer .footer-links { list-style: none; padding: 0; margin: 0; }
+    .site-footer .footer-links li { margin-bottom: 0.45rem; }
+    .newsletter-form { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+    .newsletter-form input { flex: 1 1 auto; padding: 0.5rem 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: #fff; outline: none; }
+    .newsletter-form input::placeholder { color: #9aa4b2; }
+    .newsletter-form button { padding: 0.5rem 0.8rem; border-radius: 6px; background: #1f6feb; color: #fff; border: none; cursor: pointer; }
+    .site-footer .footer-bottom { border-top: 1px solid rgba(63, 62, 62, 0.05); margin-top: 1.25rem; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: #666; }
+    .site-footer .payments { display: flex; gap: 0.5rem; align-items: center; }
+    .site-footer .socials { display: flex; gap: 0.5rem; align-items: center; }
+    .site-footer .socials img { height: 22px; width: auto; display: inline-block; margin-left: 0.5rem; opacity: 0.9; transition: transform .12s ease, opacity .12s ease; }
+    .site-footer .socials img:hover { opacity: 1; transform: translateY(-2px) scale(1.06); }
+    @media (max-width: 800px) { .site-footer .footer-inner { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .site-footer .footer-inner { grid-template-columns: 1fr; text-align: left; } .site-footer .footer-bottom { flex-direction: column; text-align: center; } }
+  </style>
+
+  <!-- canonical footer (copied from index.html) -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <a class="brand" href="index.html"><img src="/img/logos/mark-x logo new.png" alt="Konix" style="height:36px;"></a><br>
+        <p><strong>Konix Markit</strong><br>Quality products, fair prices, fast local delivery across Ghana.</p><br>
+        <div class="newsletter">
+          <h4 style="margin-top:0.6rem">Subscribe</h4>
+          <form id="newsletterForm" class="newsletter-form" action="#" novalidate>
+            <input id="newsletterEmail" type="email" placeholder="Your email address" aria-label="Email" required>
+            <button type="submit">Subscribe</button>
+          </form>
+          <small id="newsletterMsg" style="display:none;color:#9aa4b2;margin-top:0.4rem;"></small>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Customer Support</h4>
+        <ul class="footer-links">
+          <li><a href="help.html">Help Center</a></li>
+          <li><a href="#">Chat with us</a></li>
+          <li><a href="contact.html">Contact us</a></li>
+          <li><a href="#">Delivery & Returns</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Useful Links</h4>
+        <ul class="footer-links">
+          <li><a href="#">How to buy</a></li>
+          <li><a href="#">Service Centers</a></li>
+          <li><a href="#">Corporate & Bulk</a></li>
+          <li><a href="#">Report a Product</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Sell With Us</h4>
+        <ul class="footer-links">
+          <li><a href="#">Sell on Konix</a></li>
+          <li><a href="#">Vendor Hub</a></li>
+          <li><a href="#">Service Charges</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <div class="payments">
+        <small style="color:#9aa4b2;margin-right:0.5rem">Payment methods:</small>
+        <img src="/img/logos/visa.jpg" alt="Visa" style="height:22px;opacity:0.95;">
+        <img src="/img/logos/mastercard.png" alt="Mastercard" style="height:22px;opacity:0.95;">
+        <img src="/img/logos/momo.jpeg" alt="Mobile Money" style="height:22px;opacity:0.95;">
+      </div>
+      <div class="socials">
+        <small style="color:#9aa4b2;margin-right:0.5rem">Follow us:</small>
+        <a href="www.facebook.com"><img src="/img/logos/facebook.png" alt="Facebook"></a>
+        <a href="www.x.com"><img src="/img/logos/twitter.png" alt="Twitter"></a>
+        <a href="www.instagram.com"><img src="/img/logos/instagram.png" alt="Instagram"></a>
+      </div>
+      <div style="width:100%;text-align: center;color:#9aa4b2; margin-top:0.6rem" >&copy; 2026 Konix Markit. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      // contact form and badges
+      function saveMessage(msg){ try{ const key = 'konix_contact_messages'; const arr = JSON.parse(localStorage.getItem(key)||'[]'); arr.unshift(msg); localStorage.setItem(key, JSON.stringify(arr)); return true; }catch(e){return false} }
+      function updateBadges(){ document.querySelectorAll('.count-cart').forEach(x=>x.textContent = parseInt(localStorage.getItem('konix_cart')||'0',10)); document.querySelectorAll('.count-sms').forEach(x=>x.textContent = parseInt(localStorage.getItem('konix_sms')||'0',10)); }
+      document.getElementById('contactForm').addEventListener('submit', function(e){ e.preventDefault(); const name = document.getElementById('name').value.trim(); const email = document.getElementById('email').value.trim(); const phone = document.getElementById('phone').value.trim(); const subject = document.getElementById('subject').value.trim(); const message = document.getElementById('message').value.trim(); if(!name||!email||!subject||!message){ alert('Please fill required fields.'); return; } const payload = { id: 'c-'+Date.now(), name, email, phone, subject, message, created: new Date().toISOString() }; if(saveMessage(payload)){ alert('Thanks — your message was sent.'); this.reset(); updateBadges(); }else{ alert('Failed to save message locally.'); } });
+      document.getElementById('resetBtn').addEventListener('click', function(){ document.getElementById('contactForm').reset(); });
+      updateBadges();
+
+      // newsletter handler (shared minimal implementation)
+      const newsletterForm = document.getElementById('newsletterForm');
+      if(newsletterForm){
+        newsletterForm.addEventListener('submit', function(e){ e.preventDefault(); const input = document.getElementById('newsletterEmail'); const msg = document.getElementById('newsletterMsg'); const email = input ? input.value.trim() : ''; const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); if(!valid){ if(msg){ msg.style.display='block'; msg.textContent='Please enter a valid email.'; } return; } const key = 'konix_newsletter'; let list = []; try{ list = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ list = []; } if(!list.includes(email)){ list.push(email); localStorage.setItem(key, JSON.stringify(list)); } if(msg){ msg.style.display='block'; msg.textContent='Thanks — you are subscribed!'; } if(input) input.value=''; setTimeout(()=>{ if(msg) msg.style.display='none'; }, 3500); });
+      }
+    })();
+  </script>
+</body>
+</html>

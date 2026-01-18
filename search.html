@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Search Results — Konix Markit</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#f7f7f7;color:#222}
+    a {
+            text-decoration: none;
+            color: inherit;
+        }
+    .container{max-width:1200px;margin:0 auto;padding:1rem}
+    header.navbar{background:#fbf6e6;box-shadow:3px 3px 5px rgba(0,0,0,0.08);position:sticky;top:0;z-index:100}
+    .navbar-top{display:flex;align-items:center;gap:0.5rem;padding:.6rem 1rem}
+    .brand img{height:36px}
+
+    .top-row{display:flex;align-items:center;gap:1rem;margin:1rem 0}
+    .search-box{flex:1;display:flex;gap:.5rem}
+    .search-box input{flex:1;padding:.6rem;border:1px solid #ddd;border-radius:8px}
+    .btn{background:#111;color:#fff;padding:.6rem .8rem;border-radius:8px;border:none;cursor:pointer}
+
+    /* sms and cart badges (site-wide) */
+    .sms, .cart { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .4rem; border-radius:6px; color:#333; }
+    .sms:hover, .cart:hover { background: rgba(0,0,0,0.03); }
+    .count-sms, .count-cart { display:inline-block; background:tomato; color:#fff; font-size:.75rem; padding:.12rem .45rem; border-radius:999px; line-height:1; vertical-align:middle; margin-left:0.2rem; }
+
+    .results-head{display:flex;align-items:center;gap:1rem;justify-content:space-between;margin-bottom:.75rem}
+    .filters{display:flex;gap:.5rem;align-items:center}
+    select{padding:.5rem;border:1px solid #ddd;border-radius:6px}
+
+    .layout{display:grid;grid-template-columns:220px 1fr;gap:1rem}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}}
+
+    .side{background:#fff;padding:1rem;border-radius:8px;box-shadow:0 8px 18px rgba(10,10,10,0.04)}
+    .side h4{margin-bottom:.6rem;color:rgb(88,183,16)}
+    .cat-list button{display:block;width:100%;text-align:left;padding:.4rem;border:none;background:transparent;cursor:pointer;border-radius:6px}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+    .card{background:#fff;padding:.8rem;border-radius:10px;box-shadow:0 8px 18px rgba(10,10,10,0.04);text-align:center}
+    .card img{height:140px;object-fit:cover;width:100%;border-radius:8px;margin-bottom:.6rem}
+    .card h4{font-size:1rem;margin-bottom:.25rem}
+    .card .price{color:tomato;font-weight:700;margin-bottom:.6rem}
+    .card .meta{color:#666;font-size:.9rem;margin-bottom:.5rem}
+    .muted{color:#666}
+    .empty{padding:3rem;text-align:center;color:#666;background:#fff;border-radius:8px}
+
+    .pager{display:flex;gap:.4rem;justify-content:center;margin-top:1rem}
+    .pager button{padding:.4rem .6rem;border-radius:6px;border:1px solid #eee;background:#fff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-top container">
+      <a class="brand" href="index.html"><img src="/img/logos/konix logo 1.png" alt="Konix"></a>
+      <div style="margin-left:auto;display:flex;gap:.8rem;align-items:center">
+        <a class="sms" href="sms.html">🔔<sup class="count-sms">0</sup></a>
+        <a class="cart" href="cart.html">🛒<sup class="count-cart">0</sup></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="top-row">
+      <div class="search-box">
+        <input id="qInput" placeholder="Search products...">
+        <button id="doSearch" class="btn">Search</button>
+      </div>
+      <div class="muted" id="resultsCount"></div>
+    </div>
+
+    <div class="results-head">
+      <div class="filters">
+        <label for="sort">Sort:</label>
+        <select id="sort"><option value="relevance">Relevance</option><option value="price-asc">Price: Low &uarr;</option><option value="price-desc">Price: High &darr;</option></select>
+        <label for="perPage">Per page:</label>
+        <select id="perPage"><option>12</option><option>24</option><option>48</option></select>
+      </div>
+      <div class="muted">Search powered by client snapshot</div>
+    </div>
+
+    <div class="layout">
+      <aside class="side">
+        <h4>Categories</h4>
+        <div class="cat-list" id="catList"></div>
+      </aside>
+
+      <section>
+        <div id="resultsArea"></div>
+        <div class="pager" id="pager"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      // utilities
+      function qs(name){ const u=new URL(window.location.href); return u.searchParams.get(name) || ''; }
+      function getSnapshot(){ try{ return JSON.parse(localStorage.getItem('konix_products_snapshot')||'[]'); }catch(e){return[]} }
+      function getCount(key){ return parseInt(localStorage.getItem(key) || '0', 10); }
+      function setCount(key,val){ localStorage.setItem(key, String(val)); }
+
+      // state
+      let items = getSnapshot();
+      let query = qs('q') || (localStorage.getItem('konix_last_search') || '');
+      let category = '';
+      let sort = document.getElementById('sort').value;
+      let perPage = Number(document.getElementById('perPage').value || 12);
+      let page = 1;
+
+      const qInput = document.getElementById('qInput'); qInput.value = query;
+      const resultsArea = document.getElementById('resultsArea');
+      const resultsCount = document.getElementById('resultsCount');
+      const catList = document.getElementById('catList');
+      const pager = document.getElementById('pager');
+
+      function formatPrice(n){ return 'GH₵ ' + Number(n||0).toFixed(2); }
+
+      function deriveCategories(list){ const s=new Set(); list.forEach(it=>{ if(it.category) s.add(it.category); else if(it.img){ const m = String(it.img).match(/img\/(?:%2F)?([^\/]+)\//i); if(m && m[1]) s.add(m[1].replace(/[-_]/g,' ')); } }); return Array.from(s).sort(); }
+
+      function renderCategories(){ const cats = deriveCategories(items); catList.innerHTML = '<button data-cat="">All</button>' + cats.map(c=>'<button data-cat="'+c+'">'+c+'</button>').join(''); catList.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{ category = b.dataset.cat || ''; page=1; render(); })); }
+
+      function applyFilters(list){ let out = list.slice(); if(query) out = out.filter(i => (i.name||'').toLowerCase().includes(query.toLowerCase())); if(category) out = out.filter(i => ((i.category||'')||'').toLowerCase().includes(category.toLowerCase())); if(sort==='price-asc') out.sort((a,b)=> (a.price||0)-(b.price||0)); if(sort==='price-desc') out.sort((a,b)=> (b.price||0)-(a.price||0)); return out; }
+
+      function render(){
+        const filtered = applyFilters(items);
+        resultsCount.textContent = filtered.length + ' result' + (filtered.length===1?'':'s');
+        if(filtered.length===0){ resultsArea.innerHTML = '<div class="empty">No results for "'+ (query || '') +'" — try different keywords from the homepage.</div>'; pager.innerHTML=''; return; }
+
+        // pagination
+        perPage = Number(document.getElementById('perPage').value || 12);
+        sort = document.getElementById('sort').value;
+        const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+        page = Math.min(page, totalPages);
+        const start = (page-1)*perPage; const pageItems = filtered.slice(start, start + perPage);
+
+        // render grid
+        const grid = document.createElement('div'); grid.className='grid';
+        pageItems.forEach(it => {
+          const c = document.createElement('div'); c.className='card';
+          c.innerHTML = '<img src="'+(it.img||'/img/featured/double door fridge (3).jpg')+'" alt="">' +
+                        '<h4>'+ (it.name || '') +'</h4>' +
+                        '<div class="price">'+ formatPrice(it.price) +'</div>' +
+                        '<div class="meta">'+ (it.desc||'') +'</div>' +
+                        '<div style="margin-top:.6rem"><button class="btn add-to-cart">Add to cart</button></div>';
+          c.querySelector('.add-to-cart').addEventListener('click', ()=>{ addToCart(it); });
+          grid.appendChild(c);
+        });
+        resultsArea.innerHTML=''; resultsArea.appendChild(grid);
+
+        // pager
+        pager.innerHTML='';
+        for(let p=1;p<=totalPages;p++){
+          const b = document.createElement('button'); b.textContent = p; if(p===page) b.style.fontWeight='700'; b.addEventListener('click', ()=>{ page = p; render(); }); pager.appendChild(b);
+        }
+      }
+
+      function updateCounts(){ const c=document.querySelector('.count-cart'); const s=document.querySelector('.count-sms'); if(c) c.textContent = getCount('konix_cart'); if(s) s.textContent = getCount('konix_sms'); }
+
+      function addToCart(item){
+        try{
+          const getCart = ()=>{ try{return JSON.parse(localStorage.getItem('konix_cart_items')||'[]')}catch(e){return[]} };
+          const setCart = itms=>localStorage.setItem('konix_cart_items', JSON.stringify(itms));
+          const itemsList = getCart();
+          const existing = itemsList.find(i => i.name === item.name && Number(i.price) === Number(item.price));
+          if(existing) existing.qty = (existing.qty||1) + 1; else itemsList.push({ id: item.id || 'p-'+Date.now(), name: item.name, price: item.price||0, qty:1, img: item.img||'' });
+          setCart(itemsList);
+          const current = getCount('konix_cart'); setCount('konix_cart', current + 1);
+          updateCounts();
+          // quick toast
+          const t = document.createElement('div'); t.textContent='Added to cart'; t.style.position='fixed'; t.style.right='16px'; t.style.bottom='16px'; t.style.background='#111'; t.style.color='#fff'; t.style.padding='8px 10px'; t.style.borderRadius='8px'; document.body.appendChild(t); setTimeout(()=>t.remove(),900);
+        }catch(e){ console.error(e); alert('Could not add to cart'); }
+      }
+
+      // wire search
+      document.getElementById('doSearch').addEventListener('click', function(){ query = qInput.value.trim(); localStorage.setItem('konix_last_search', query); // navigate back to index for new snapshot if user wants live snapshot
+        const url = 'search.html?q=' + encodeURIComponent(query); history.replaceState({}, '', url); page=1; render(); });
+
+      // init
+      renderCategories(); render(); updateCounts();
+      // wire sort/perPage change
+      document.getElementById('sort').addEventListener('change', ()=>{ page=1; render(); });
+      document.getElementById('perPage').addEventListener('change', ()=>{ page=1; render(); });
+    })();
+  </script>
+
+  <style>
+    /* footer styles */
+    .site-footer { background: #0b1220; color: #cbd5e1; padding: 3rem 0 1.5rem; margin-top: 2rem; font-size: 0.95rem; }
+    .site-footer .footer-inner { max-width: 1200px; margin: 0 auto; padding: 0 1rem; display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; align-items: start; }
+    .site-footer h4 { color: #fff; margin-bottom: 0.6rem; font-size: 1rem; }
+    .site-footer p, .site-footer li { color: #cbd5e1; line-height: 1.5; }
+    .site-footer .footer-links { list-style: none; padding: 0; margin: 0; }
+    .site-footer .footer-links li { margin-bottom: 0.45rem; }
+    .newsletter-form { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
+    .newsletter-form input { flex: 1 1 auto; padding: 0.5rem 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: #fff; outline: none; }
+    .newsletter-form input::placeholder { color: #9aa4b2; }
+    .newsletter-form button { padding: 0.5rem 0.8rem; border-radius: 6px; background: #1f6feb; color: #fff; border: none; cursor: pointer; }
+    .site-footer .footer-bottom { border-top: 1px solid rgba(63, 62, 62, 0.05); margin-top: 1.25rem; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: #666; }
+    .site-footer .payments { display: flex; gap: 0.5rem; align-items: center; }
+    .site-footer .socials { display: flex; gap: 0.5rem; align-items: center; }
+    .site-footer .socials img { height: 22px; width: auto; display: inline-block; margin-left: 0.5rem; opacity: 0.9; transition: transform .12s ease, opacity .12s ease; }
+    .site-footer .socials img:hover { opacity: 1; transform: translateY(-2px) scale(1.06); }
+    @media (max-width: 800px) { .site-footer .footer-inner { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px) { .site-footer .footer-inner { grid-template-columns: 1fr; text-align: left; } .site-footer .footer-bottom { flex-direction: column; text-align: center; } }
+  </style>
+
+  <!-- canonical footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <a class="brand" href="index.html"><img src="/img/logos/mark-x logo new.png" alt="Konix" style="height:36px;"></a><br>
+        <p><strong>Konix Markit</strong><br>Quality products, fair prices, fast local delivery across Ghana.</p><br>
+        <div class="newsletter">
+          <h4 style="margin-top:0.6rem">Subscribe</h4>
+          <form id="newsletterForm" class="newsletter-form" action="#" novalidate>
+            <input id="newsletterEmail" type="email" placeholder="Your email address" aria-label="Email" required>
+            <button type="submit">Subscribe</button>
+          </form>
+          <small id="newsletterMsg" style="display:none;color:#9aa4b2;margin-top:0.4rem;"></small>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Customer Support</h4>
+        <ul class="footer-links">
+          <li><a href="help.html">Help Center</a></li>
+          <li><a href="#">Chat with us</a></li>
+          <li><a href="contact.html">Contact us</a></li>
+          <li><a href="#">Delivery & Returns</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Useful Links</h4>
+        <ul class="footer-links">
+          <li><a href="#">How to buy</a></li>
+          <li><a href="#">Service Centers</a></li>
+          <li><a href="#">Corporate & Bulk</a></li>
+          <li><a href="#">Report a Product</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Sell With Us</h4>
+        <ul class="footer-links">
+          <li><a href="#">Sell on Konix</a></li>
+          <li><a href="#">Vendor Hub</a></li>
+          <li><a href="#">Service Charges</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <div class="payments">
+        <small style="color:#9aa4b2;margin-right:0.5rem">Payment methods:</small>
+        <img src="/img/logos/visa.jpg" alt="Visa" style="height:22px;opacity:0.95;">
+        <img src="/img/logos/mastercard.png" alt="Mastercard" style="height:22px;opacity:0.95;">
+        <img src="/img/logos/momo.jpeg" alt="Mobile Money" style="height:22px;opacity:0.95;">
+      </div>
+      <div class="socials">
+        <small style="color:#9aa4b2;margin-right:0.5rem">Follow us:</small>
+        <a href="www.facebook.com"><img src="/img/logos/facebook.png" alt="Facebook"></a>
+        <a href="www.x.com"><img src="/img/logos/twitter.png" alt="Twitter"></a>
+        <a href="www.instagram.com"><img src="/img/logos/instagram.png" alt="Instagram"></a>
+      </div>
+      <div style="width:100%;text-align: center;color:#9aa4b2; margin-top:0.6rem" >&copy; 2026 Konix Markit. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      if(localStorage.getItem('konix_cart') === null) localStorage.setItem('konix_cart', '0');
+      if(localStorage.getItem('konix_sms') === null) localStorage.setItem('konix_sms', '0');
+      const newsletterForm = document.getElementById('newsletterForm');
+      if(newsletterForm){
+        newsletterForm.addEventListener('submit', function(e){ e.preventDefault(); const input = document.getElementById('newsletterEmail'); const msg = document.getElementById('newsletterMsg'); const email = input ? input.value.trim() : ''; const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); if(!valid){ if(msg){ msg.style.display='block'; msg.textContent='Please enter a valid email.'; } return; } const key = 'konix_newsletter'; let list = []; try{ list = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ list = []; } if(!list.includes(email)){ list.push(email); localStorage.setItem(key, JSON.stringify(list)); } if(msg){ msg.style.display='block'; msg.textContent='Thanks — you are subscribed!'; } if(input) input.value=''; setTimeout(()=>{ if(msg) msg.style.display='none'; }, 3500); });
+      }
+    })();
+  </script>
+</body>
+</html>

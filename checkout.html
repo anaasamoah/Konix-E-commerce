@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checkout — Konix Markit</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:#f7f7f7;color:#222}
+    a {
+            text-decoration: none;
+            color: inherit;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:1rem}
+    header.navbar{background:#fbf6e6;box-shadow:3px 3px 5px rgba(0,0,0,0.08);position:sticky;top:0;z-index:100}
+    .navbar-top{display:flex;align-items:center;gap:0.5rem;padding:.6rem 1rem}
+    .brand img{height:36px}
+
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:1rem;margin-top:1rem}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}}
+
+    .card{background:#fff;padding:1rem;border-radius:10px;box-shadow:0 8px 18px rgba(10,10,10,0.04)}
+    h2{color:rgb(88,183,16);margin-bottom:.6rem}
+    label{display:block;margin-top:.5rem;font-weight:600}
+    input[type="text"], input[type="email"], input[type="tel"], select, textarea{width:100%;padding:.6rem;border:1px solid #ddd;border-radius:6px;margin-top:.25rem}
+    .row{display:flex;gap:.6rem}
+    .row .col{flex:1}
+    .items-list{margin-top:.6rem}
+    .item{display:flex;gap:.6rem;align-items:center;padding:.6rem 0;border-bottom:1px solid #f0f0f0}
+    .item img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+    .price{font-weight:700;color:tomato}
+    .summary .line{display:flex;justify-content:space-between;padding:.45rem 0}
+    .btn{background:#111;color:#fff;padding:.7rem 1rem;border-radius:8px;border:none;cursor:pointer}
+
+    /* sms and cart badges (consistent site-wide) */
+    .sms, .cart { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .4rem; border-radius:6px; color:#333; }
+    .sms:hover, .cart:hover { background: rgba(0,0,0,0.03); }
+    .count-sms, .count-cart { display:inline-block; background:tomato; color:#fff; font-size:.75rem; padding:.12rem .45rem; border-radius:999px; line-height:1; vertical-align:middle; margin-left:0.2rem; }
+
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-top container">
+      <a class="brand" href="index.html"><img src="/img/logos/konix logo 1.png" alt="Konix"></a>
+      <div style="margin-left:auto;display:flex;gap:.6rem;align-items:center">
+        <a class="sms" href="sms.html">🔔<sup class="count-sms">0</sup></a>
+        <a class="cart" href="cart.html">🛒<sup class="count-cart">0</sup></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Checkout</h2>
+    <div class="layout">
+      <section>
+        <div class="card">
+          <h3>Shipping information</h3>
+          <form id="checkoutForm">
+            <div class="row">
+              <div class="col">
+                <label for="firstName">First name</label>
+                <input id="firstName" type="text" required>
+              </div>
+              <div class="col">
+                <label for="lastName">Last name</label>
+                <input id="lastName" type="text" required>
+              </div>
+            </div>
+            <label for="email">Email</label>
+            <input id="email" type="email" required>
+            <label for="phone">Phone</label>
+            <input id="phone" type="tel">
+            <div id="addressFields">
+              <label for="address">Address</label>
+              <input id="address" type="text" placeholder="Street address, city, region" required>
+              <div class="row">
+                <div class="col">
+                  <label for="city">City</label>
+                  <input id="city" type="text">
+                </div>
+                <div class="col">
+                  <label for="postcode">Postal code</label>
+                  <input id="postcode" type="text">
+                </div>
+              </div>
+            </div>
+
+            <h3 style="margin-top:1rem">Fulfillment</h3>
+            <div style="display:flex;gap:1rem;align-items:center;margin-top:.4rem">
+              <label><input type="radio" name="fulfillment" value="pickup"> Pickup station</label>
+            </div>
+
+            <div id="pickupBox" style="margin-top:.6rem;display:none">
+              <label for="pickupStation">Choose pickup station</label>
+              <select id="pickupStation">
+                <option value="">-- Select station --</option>
+                <option value="Accra - Mall Street">Accra - Mall Street</option>
+                <option value="Accra - GCTU Main Campus Tesano">Accra - GCTU Main Campus Tesano</option>
+                <option value="Accra - Legon Outlet">Accra - Legon Outlet</option>
+                <option value="Kasoa - New Market">Kasoa - New Market</option>
+                <option value="Kasoa - Bigdreams driving school">Kasoa - Bigdreams driving school</option>
+              </select>
+              <div class="small-muted" style="margin-top:.4rem">Pick up your order at the selected station (no shipping fee).</div>
+            </div>
+
+            <h3 style="margin-top:1rem">Payment</h3>
+            <label for="payment">Method</label>
+            <select id="payment">
+              <option value="card">Card (demo)</option>
+              <option value="momo">Mobile Money</option>
+              <option value="cod">Cash on Delivery</option>
+            </select>
+
+            <div id="momoFields" style="margin-top:.6rem;display:none">
+              <label for="momoProvider">Mobile money provider</label>
+              <select id="momoProvider">
+                <option value="">-- Select provider --</option>
+                <option value="mtn">MTN Mobile Money</option>
+                <option value="telecel">Telecel Cash</option>
+                <option value="airteltigo">AirtelTigo Money</option>
+              </select>
+              <label for="momoMobile" style="margin-top:.5rem">Mobile number for payment</label>
+              <input id="momoMobile" type="tel" placeholder="e.g. 0244123456" style="margin-top:.25rem">
+              <div class="small-muted" style="margin-top:.4rem">Choose your mobile money network and provide the number to be charged.</div>
+            </div>
+
+            <div id="cardFields" style="margin-top:.6rem">
+              <label for="cardNumber">Card number</label>
+              <input id="cardNumber" type="text" placeholder="4242 4242 4242 4242">
+              <div class="row">
+                <div class="col"><label for="exp">Expiry</label><input id="exp" type="text" placeholder="MM/YY"></div>
+                <div class="col"><label for="cvc">CVC</label><input id="cvc" type="text" placeholder="123"></div>
+              </div>
+            </div>
+
+            <div style="margin-top:1rem;display:flex;gap:.6rem;align-items:center">
+              <input id="agree" type="checkbox"><label for="agree" style="margin:0">I agree to the terms and conditions</label>
+            </div>
+
+            <div style="margin-top:1rem"><button class="btn" type="submit">Place order</button></div>
+          </form>
+        </div>
+      </section>
+
+      <aside>
+        <div class="card summary">
+          <h3>Order summary</h3>
+          <div id="itemsList" class="items-list"></div>
+          <div style="border-top:1px solid #f0f0f0;margin-top:.6rem;padding-top:.6rem">
+            <div class="line"><span>Subtotal</span><span id="sub">GH₵0.00</span></div>
+            <div class="line"><span>Shipping</span><span id="ship">GH₵0.00</span></div>
+            <div class="line" style="font-weight:700"><span>Total</span><span id="total">GH₵0.00</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      function getCart(){ try{return JSON.parse(localStorage.getItem('konix_cart_items')||'[]')}catch(e){return[]} }
+      function format(n){ return 'GH₵' + Number(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+      // notifications helpers (used to show SMS-like messages)
+      function getNotifications(){ try{return JSON.parse(localStorage.getItem('konix_notifications')||'[]')}catch(e){return[]} }
+      function setNotifications(arr){ localStorage.setItem('konix_notifications', JSON.stringify(arr)); }
+
+      function getFulfillment(){ const f = document.querySelector('input[name="fulfillment"]:checked'); return f ? f.value : 'delivery'; }
+
+      function renderCart(){ const list = getCart(); const el = document.getElementById('itemsList'); el.innerHTML=''; let subtotal=0; if(!list || list.length===0){ el.innerHTML='<div class="muted">Your cart is empty.</div>'; document.getElementById('sub').textContent = format(0); document.getElementById('total').textContent = format(0); return; } list.forEach(it=>{ const div = document.createElement('div'); div.className='item'; div.innerHTML = `<img src="${it.img||'/img/featured/double door fridge (3).jpg'}" alt=""><div style="flex:1"><div><strong>${it.name}</strong></div><div class="muted">${it.qty} × GH₵ ${Number(it.price).toFixed(2)}</div></div><div class="price">GH₵ ${(it.qty*it.price).toFixed(2)}</div>`; el.appendChild(div); subtotal += (it.qty * it.price); }); document.getElementById('sub').textContent = format(subtotal); const fulfillment = getFulfillment(); const shipping = (subtotal>0 && fulfillment === 'delivery') ? 25 : 0; document.getElementById('ship').textContent = format(shipping); document.getElementById('total').textContent = format(subtotal + shipping); }
+
+      document.getElementById('payment').addEventListener('change', function(){ const val = this.value; document.getElementById('cardFields').style.display = val === 'card' ? '' : 'none'; document.getElementById('momoFields').style.display = val === 'momo' ? '' : 'none'; });
+
+      // toggle pickup vs address when fulfillment changes
+      document.querySelectorAll('input[name="fulfillment"]').forEach(r => r.addEventListener('change', function(){ const val = this.value; document.getElementById('pickupBox').style.display = val === 'pickup' ? '' : 'none'; document.getElementById('addressFields').style.display = val === 'pickup' ? 'none' : ''; renderCart(); }));
+
+      document.getElementById('checkoutForm').addEventListener('submit', function(e){ e.preventDefault(); const agreed = document.getElementById('agree').checked; if(!agreed){ alert('Please agree to the terms.'); return; }
+        const firstName = document.getElementById('firstName').value || '';
+        const lastName = document.getElementById('lastName').value || '';
+        const email = document.getElementById('email').value || '';
+        const phone = document.getElementById('phone').value || '';
+        const address = document.getElementById('address').value || '';
+        const city = document.getElementById('city').value || '';
+        const postcode = document.getElementById('postcode').value || '';
+        const payment = document.getElementById('payment').value || 'card';
+        const momoProvider = document.getElementById('momoProvider') ? document.getElementById('momoProvider').value : '';
+        const momoMobile = document.getElementById('momoMobile') ? document.getElementById('momoMobile').value.trim() : '';
+        // if Mobile Money is selected, validate provider and mobile
+        if(payment === 'momo'){
+          if(!momoProvider){ alert('Please select a Mobile Money provider.'); return; }
+          if(!momoMobile){ alert('Please enter the mobile number to charge for Mobile Money.'); return; }
+        }
+        const fulfillment = getFulfillment();
+        const pickupStation = document.getElementById('pickupStation') ? document.getElementById('pickupStation').value : '';
+        const items = getCart(); if(!items || items.length===0){ alert('Your cart is empty'); return; }
+        const subtotal = items.reduce((s,i)=> s + (i.price*i.qty),0);
+        const shipping = (subtotal>0 && fulfillment === 'delivery') ? 25 : 0;
+        const order = {
+          id: 'ORD-'+Date.now(),
+          date: new Date().toISOString(),
+          customer: { firstName, lastName, email, phone, address: fulfillment==='pickup'? 'PICKUP' : address, city, postcode },
+          payment, paymentProvider: payment==='momo'? momoProvider : '', paymentMobile: payment==='momo'? momoMobile : '', fulfillment, pickupStation: fulfillment==='pickup'? pickupStation : '',
+          items, subtotal, shipping, total: subtotal+shipping, status: 'processing'
+        };
+        try{ const orders = JSON.parse(localStorage.getItem('konix_orders')||'[]'); orders.unshift(order); localStorage.setItem('konix_orders', JSON.stringify(orders)); }catch(err){ localStorage.setItem('konix_orders', JSON.stringify([order])); }
+        // create a notification for sms page
+        try{
+          const notes = getNotifications();
+          const note = { id: 'n-'+Date.now(), title: 'Order placed', message: `Order ${order.id} placed — Total ${format(order.total)}`, time: Date.now(), read: false };
+          notes.push(note);
+          setNotifications(notes);
+          // update unread count stored as konix_sms (kept in sync by sms page too)
+          const unread = notes.filter(n=>!n.read).length;
+          localStorage.setItem('konix_sms', String(unread));
+          document.querySelectorAll('.count-sms').forEach(x=>x.textContent = String(unread));
+        }catch(e){}
+
+        // clear cart and update counts
+        localStorage.setItem('konix_cart_items', JSON.stringify([])); localStorage.setItem('konix_cart', '0'); document.querySelectorAll('.count-cart').forEach(x=>x.textContent = '0');
+        alert('Order placed — thanks! Order ID: ' + order.id);
+        window.location.href = 'orders.html';
+      });
+
+      // init
+      renderCart();
+      document.querySelectorAll('.count-cart').forEach(x=>x.textContent = parseInt(localStorage.getItem('konix_cart')||'0',10));
+      document.querySelectorAll('.count-sms').forEach(x=>x.textContent = parseInt(localStorage.getItem('konix_sms')||'0',10));
+      // hide card fields if payment not card
+      document.getElementById('cardFields').style.display = document.getElementById('payment').value === 'card' ? '' : 'none';
+    })();
+  </script>
+</body>
+</html>

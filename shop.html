@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konix Store</title>
+    <!-- CSS -->
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, Arial, Helvetica,;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        /* Navigation bar */
+        .navbar {
+            background-color: rgb(251, 248, 230);
+            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .navbar-top {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            position: relative;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+        }
+        .brand img {
+            height: 40px;
+            margin-right: 0.5rem;
+        } 
+        .brand img:hover {
+            filter: brightness(1.1);
+        }
+
+        .nav-style {
+            max-width: 1200px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            margin-left: auto;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .nav-link {
+            list-style: none;
+            display: flex;
+            gap: 0.75rem;
+            margin: 0;
+            padding: 0;
+            justify-content: center;
+            align-items: center;
+        }
+        .nav-list {
+            color: #666;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+        }
+        .nav-list:hover {
+            filter: brightness(1.1);
+            color: rgb(88, 183, 16);
+            background: rgba(0,0,0,0.03);
+        }
+            
+        /* sms and cart */
+        .sms, .cart {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.4rem;
+            border-radius: 6px;
+            color: #333;
+        }
+        .sms:hover, .cart:hover { 
+            background: rgba(0,0,0,0.03); 
+        }
+
+        .count-sms, .count-cart {
+            display: inline-block;
+            background: tomato;
+            color: #fff;
+            font-size: 0.75rem;
+            padding: 0.12rem 0.45rem;
+            border-radius: 999px;
+            line-height: 1;
+            vertical-align: middle;
+            margin-left: 0.2rem;
+        }
+
+        /* responsive typography tweaks */
+        @media (max-width: 800px) {
+            body { 
+                font-size: 15px; 
+            }
+        }
+        @media (max-width: 480px) {
+            body { 
+                font-size: 14px; 
+            }
+            .count-sms, .count-cart { 
+                font-size: 0.68rem; 
+                padding: 0.1rem 0.35rem; 
+            }
+        }
+
+        /* hamburger menu */
+        .hamburger {
+            display: none;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: left;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+            margin-right: 0.5rem;
+        }
+        .hamburger .bar { 
+            display:block; 
+            width:22px; 
+            height:2px; 
+            background:#333; 
+            margin:4px 0; 
+            transition: opacity .12s ease; 
+        }
+
+        /* mini search bar */
+        .mini-search {
+            display: flex;
+            align-items: center;
+            margin-left: 0;
+        }
+        .mini-search .search-input {
+            flex: 1 1 auto;
+            min-width: 0; 
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 20px 0 0 20px;
+            outline: none;
+            font-size: 1rem;
+        }
+        .mini-search .search-btn {
+            padding: 0.6rem 1rem; 
+            border: none; 
+            border-radius: 0 20px 20px 0;
+            background: black; 
+            color: #fff; 
+            font-size: 1rem; 
+            cursor: pointer;
+        }
+        
+        @media (max-width: 800px) {
+            .nav-style { 
+                display: none; 
+            }
+            .hamburger { 
+                display: inline-flex; 
+            }
+            .navbar.open .nav-style {
+                display: block;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                right: 10;
+                background: #fff;
+                padding: 0.75rem 1rem;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+                z-index: 999;
+            }
+            .navbar.open .nav-style ul { 
+                flex-direction: column; 
+                gap: 1.2rem;
+                padding-top: 0.5rem; 
+            }
+        }
+        /* Main section */
+        #Home {
+        background: #fcf6f6;
+        text-align: center;
+        padding: 2rem 2rem;
+        margin: auto;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* items section */
+        main { 
+            padding-top: 72px; 
+        }
+
+        .items-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding: 0.75rem 1rem 1.25rem 1rem;
+            background: #fff;
+        }
+        .items-card {
+            border-radius: 10px;
+            padding: 0.9rem;
+            text-align: center;
+            background: rgb(255, 255, 255);
+            border:1px solid rgba(15,15,15,0.04);
+            box-shadow: 0 8px 18px rgba(10,10,10,0.06);
+            transition: transform .18s ease, box-shadow .18s ease;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .items-card img {
+            max-width: 100%;
+            height: 150px; 
+            object-fit: cover;
+            margin-bottom: 0.6rem; 
+            border-radius: 20px;
+            box-shadow: 0 8px 18px rgba(10,10,10,0.06);
+        }
+        .items-card:hover {
+            transform: translateY(-6px); 
+            box-shadow:0 18px 40px rgba(10,10,10,0.08); 
+        }
+
+        /* Add-to-cart button styles */
+        .add-to-cart {
+            display: inline-block;
+            background: #000000;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 0.9rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+            box-shadow: 0 8px 20px rgba(31,111,235,0.12);
+        }
+        .add-to-cart:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 14px 30px rgba(31,111,235,0.16); 
+        }
+        .add-to-cart:active { 
+            transform: translateY(-1px); 
+        }
+        .add-to-cart[disabled] { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+            transform: none; 
+            box-shadow: none; 
+        }
+
+        @media (max-width: 480px) {
+            .add-to-cart { 
+                padding: 0.45rem 0.7rem; 
+                font-size: 0.9rem; 
+                border-radius: 8px; 
+            }
+        }
+
+        /* About section styles */
+        .about-section {
+            background: #fff;
+            padding: 3rem 1rem;
+        }
+        .about-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            align-items: center;
+            justify-items: center;
+        }
+        .about-content { 
+            text-align: center; 
+            width:100%; 
+            max-width:760px; 
+        }
+        .about-content h2 {
+            color: rgb(88, 183, 16);
+            margin-bottom: 0.6rem;
+            font-size: 1.6rem;
+        }
+        .about-content p { 
+            margin: 0.5rem 0; 
+            color: #333; 
+        }
+        .features { 
+            display:flex; 
+            gap:1rem; 
+            margin-top:0.8rem; 
+            flex-wrap:wrap; 
+            justify-content:center;
+        }
+        .feature { flex:1 1 140px; 
+            background: #f7f7f7; 
+            padding:0.8rem; 
+            border-radius:8px; 
+            text-align:center;
+        }
+        .about-cta { 
+            display:inline-block; 
+            margin-top:0.4rem; 
+        }
+        @media (max-width: 800px) {
+            .about-inner { 
+                grid-template-columns: 1fr; 
+                justify-items: center;
+            }
+            .about-section { 
+                padding: 2rem 0.75rem; 
+            }
+            .about-content { 
+                text-align: center; 
+            }
+            .about-media img { 
+                max-height: 260px; 
+            }
+        }
+        
+        /* footer styles (realistic) */
+        .site-footer { 
+            background: #0b1220; 
+            color: #cbd5e1; 
+            padding: 3rem 0 1.5rem; 
+            margin-top: 2rem; 
+            font-size: 0.95rem; 
+        }
+        .site-footer .footer-inner { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 1rem; 
+            display: grid; 
+            grid-template-columns: repeat(4,1fr); 
+            gap: 1.5rem; 
+            align-items: start; 
+        }
+        .site-footer h4 { 
+            color: #fff; 
+            margin-bottom: 0.6rem; 
+            font-size: 1rem; 
+        }
+        .site-footer p, .site-footer li { 
+            color: #cbd5e1; 
+            line-height: 1.5; 
+        }
+        .site-footer .footer-links { 
+            list-style: none; 
+            padding: 0; 
+            margin: 0; 
+        }
+        .site-footer .footer-links li { 
+            margin-bottom: 0.45rem; 
+        }
+
+        /* newsletter form */
+        .newsletter-form { 
+            display: flex; 
+            gap: 0.5rem; 
+            margin-top: 0.6rem; 
+        }
+        .newsletter-form input { 
+            flex: 1 1 auto; 
+            padding: 0.5rem 0.6rem; 
+            border-radius: 6px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            background: rgba(255,255,255,0.02); 
+            color: #fff; 
+            outline: none; 
+        }
+        .newsletter-form input::placeholder { 
+            color: #9aa4b2; 
+        }
+        .newsletter-form button { 
+            padding: 0.5rem 0.8rem; 
+            border-radius: 6px; 
+            background: #1f6feb; 
+            color: #fff; 
+            border: none; 
+            cursor: pointer; 
+        }
+            @media (max-width: 480px) { .newsletter-form { 
+                flex-direction: column; 
+                align-items: stretch; 
+            } 
+            .newsletter-form input, .newsletter-form button { 
+                width: 100%; 
+            } 
+        }
+            .site-footer a { 
+                color: #cbd5e1; 
+                text-decoration: none; 
+            }
+            .site-footer a:hover { 
+                color: #fff; 
+                text-decoration: underline; 
+            }
+            .site-footer .brand { 
+                display: flex; 
+                align-items: center; 
+                gap: 0.5rem; 
+            }
+        .site-footer .footer-bottom { 
+            border-top: 1px solid rgba(63, 62, 62, 0.05); 
+            margin-top: 1.25rem; 
+            padding-top: 1rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 0.75rem; 
+            background: #666;
+        }
+        
+        .site-footer .payments { 
+            display: flex; 
+            gap: 0.5rem; 
+            align-items: center; 
+        }
+        .site-footer .socials { 
+            display: flex; 
+            gap: 0.5rem; 
+            align-items: center; 
+        }
+        .socials img {
+            height: 22px;
+            width: auto;
+            display: inline-block;
+            margin-left: 0.5rem;
+            opacity: 0.9;
+            transition: transform .12s ease, opacity .12s ease;
+        }
+        .socials img:hover {
+            opacity: 1;
+            transform: translateY(-2px) scale(1.06);
+        }
+            @media (max-width: 800px) { 
+                .site-footer .footer-inner { 
+                    grid-template-columns: repeat(2,1fr); 
+                } 
+            }
+            @media (max-width: 480px) { 
+                .site-footer .footer-inner { 
+                    grid-template-columns: 1fr; 
+                    text-align: left; 
+                } 
+            .site-footer .footer-bottom { 
+                flex-direction: column; 
+                text-align: center; 
+            } 
+        }
+
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-top">
+            <button class="hamburger" aria-controls="mobileMenu" aria-expanded="false" 
+              aria-label="Toggle menu" onclick="toggleMenu()" type="button">&#9776;</button>
+            <a class="brand" href="index.html"><img src="/img/logos/konix logo 1.png" alt="Konix"></a>
+            
+            <div class="nav-style" id="mobileMenu">
+                <ul class="nav-link">
+                    <li><a class="sms" href="sms.html">&#x1F514;<sup class="count-sms">0</sup></a></li>
+                    <li><a class="cart" href="cart.html">🛒 cart<sup class="count-cart">0</sup></a></li>
+                </ul>
+            </div>
+
+        </div>
+    </header>
+
+    <main>
+        <!-- product section -->
+        <section id="items">
+            <!-- search bar -->
+            <div style="max-width:1200px;margin:1.25rem auto 0 auto;padding:2rem 3rem;display:flex;justify-content:center;align-items:center;">
+                <form id="searchForm" class="mini-search" role="search">
+                    <input id="search-input" class="search-input" type="search" placeholder="Search products..." aria-label="Search">
+                    <button type="submit" class="search-btn">Search</button>
+                </form>
+            </div>
+            <hr>
+            
+            <div class="items-grid">
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/girls shool bags (1).jpg" alt="Girls shool bags"></a>
+                    <h4>Girls shool bags</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">150.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/fix/PVC Blue Pipes.jpg" alt="PVC Blue Pipes"></a>
+                    <h4>PVC Blue Pipes</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">100.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Gadgets/Camera handler.jpg" alt="Camera handler"></a>
+                    <h4>Camera handler</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">120.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/fix/Stoning hammer.jpg" alt="Stoning hammer"></a>
+                    <h4>Stoning hammer</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">80.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Sneakers/Sneakers (1).jpg" alt="Sneakers"></a>
+                    <h4>Sneakers</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">300.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Men outfits/Hawaiian Shirt.jpg" alt="Hawaiian Shirt"></a>
+                    <h4>Hawaiian Shirt</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">200.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/laptop bag (1).jpg" alt="laptop bag"></a>
+                    <h4>Laptop bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">200.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Ladies outfits/Women's Summer 2 Piece Outfits Casual (2).jpg" alt="Women's Summer 2 Piece Outfits Casual"></a>
+                    <h4>Women's Summer 2 Piece Outfits Casual</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">100.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Gadgets/bluetooth speakers.jpg" alt="bluetooth speakers"></a>
+                    <h4>Bluetooth speakers</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">300.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/chairs/Home & Office Chair.jpg" alt="Home & Office Chair"></a>
+                    <h4>Home & Office Chair</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">1,500.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/fix/Wheelbarrow.jpg" alt="Wheelbarrow"></a>
+                    <h4>Wheelbarrows</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">400.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/side bag (2).jpg" alt="side bag"></a>
+                    <h4>Side bags</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">90.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/featured/double door fridge (3).jpg" alt="Double door fridge"></a>
+                    <h4>Double door fridge</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">3,200.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Slippers/slippers (5).jpg" alt="slippers"></a>
+                    <h4>Slippers</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">150.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Home Appliances/Bathroom Sinks & Vanity Wash Basins.jpg" alt="Bathroom Sinks & Vanity Wash Basins"></a>
+                    <h4>Bathroom Sinks & Vanity Wash Basins</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">1,200.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Gadgets/laptops (10).jpg" alt="DELL Laptop"></a>
+                    <h4>DELL Laptop intel core i9 13<sup>th</sup> Gen Gaming</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">9,000.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Ladies outfits/Ladies high hills (4).jpg" alt="Ladies high hills"></a>
+                    <h4>Ladies high hills</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">300.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/Travel Suitcase (3).jpg" alt="Travel Suitcase"></a>
+                    <h4>Travel Suitcase</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">600.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Sneakers/Sneakers (4).jpg" alt="Sneakers"></a>
+                    <h4>Sneakers</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">250.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/events/IP20 LED Wash Light (2).jpg" alt="IP20 LED Wash Light"></a>
+                    <h4>IP20 LED Wash Light</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">1,100.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/boys school bag.jpg" alt="boys school bag"></a>
+                    <h4>Boys school bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">150.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/girls shool bags (2).jpg" alt="girls shool bags"></a>
+                    <h4>Girls school bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">150.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/girls shool bags (3).jpg" alt="girls shool bags"></a>
+                    <h4>Girls school bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">150.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/laptop bag (2).jpg" alt="laptop bag"></a>
+                    <h4>Quality Laptop bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">200.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/laptop bag (3).jpg" alt="laptop bag"></a>
+                    <h4>Laptop bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">150.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/laptop bag (4).jpg" alt="laptop bag"></a>
+                    <h4>Quality Laptop bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">190.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/laptop bag (5).jpg" alt="laptop bag"></a>
+                    <h4>Quality Laptop bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">170.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/side bag.jpg" alt="laptop bag"></a>
+                    <h4>Side bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">120.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/Travel Suitcase (1).jpg" alt="Travel Suitcase"></a>
+                    <h4>Travel Suitcase</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">350.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/Travel Suitcase (2).jpg" alt="Travel Suitcase"></a>
+                    <h4>Travel Suitcase</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">400.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/Travel Suitcase (3).jpg" alt="Travel Suitcase"></a>
+                    <h4>Travel Suitcase</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">480.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/Travel Suitcase (4).jpg" alt="Travel Suitcase"></a>
+                    <h4>Travel Suitcase</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">650.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/travelling bags (5).jpg" alt="travelling Bag"></a>
+                    <h4>Travelling Bag</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">200.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/travelling bags men (1).jpg" alt="travelling bags men"></a>
+                    <h4>Quality Leather Travelling bags for men</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">500.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+                <div class="items-card">
+                    <a href="#"><img src="/img/Bags/travelling bags men (2).jpg" alt="travelling bags men"></a>
+                    <h4>Quality Leather Travelling bags for men</h4><br>
+                    <p>GH&#8373; <span style="color: tomato; font-size: 1rem; font-weight: bold;">500.00</span></p><br>
+                    <button class="add-to-cart">Add to cart</button>
+                </div>
+            </div>
+        </section>
+        <hr>
+        <!-- About -->
+        <section id="about" class="about-section">
+            <div class="about-inner container">
+                <div class="about-content">
+                    <h2>About Konix Markit</h2>
+                    <p>Konix Markit brings quality products at fair prices to shoppers across Ghana. <br>
+                    We focus on curated selections, dependable local delivery, and friendly customer support.</p>
+                    <br>
+
+                    <div class="features">
+                        <div class="feature">
+                            <strong>Our Mission</strong>
+                            <p>Offer everyday essentials and electronics that deliver value and reliability.</p>
+                        </div>
+                        <div class="feature">
+                            <strong>Quality First</strong>
+                            <p>We handpick products and partners to make sure you get durable items.</p>
+                        </div>
+                        <div class="feature">
+                            <strong>Local Delivery</strong>
+                            <p>Fast, affordable delivery across major cities and towns in Ghana.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <a class="brand" href="index.html"><img src="/img/logos/mark-x logo new.png" alt="Konix" style="height:36px;"></a><br>
+                <p><strong>Konix Markit</strong><br>Quality products, fair prices, fast local delivery across Ghana.</p><br>
+                <div class="newsletter">
+                    <h4 style="margin-top:0.6rem">Subscribe</h4>
+                    <form id="newsletterForm" class="newsletter-form" action="#" novalidate>
+                        <input id="newsletterEmail" type="email" placeholder="Your email address" aria-label="Email" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                    <small id="newsletterMsg" style="display:none;color:#9aa4b2;margin-top:0.4rem;"></small>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Customer Support</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Chat with us</a></li>
+                    <li><a href="#">Contact us</a></li>
+                    <li><a href="#">Delivery & Returns</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Useful Links</h4>
+                <ul class="footer-links">
+                    <li><a href="#">How to buy</a></li>
+                    <li><a href="#">Service Centers</a></li>
+                    <li><a href="#">Corporate & Bulk</a></li>
+                    <li><a href="#">Report a Product</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Sell With Us</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Sell on Konix</a></li>
+                    <li><a href="#">Vendor Hub</a></li>
+                    <li><a href="#">Service Charges</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <div class="payments">
+                <small style="color:#9aa4b2;margin-right:0.5rem">Payment methods:</small>
+                <img src="/img/logos/visa.jpg" alt="Visa" style="height:22px;opacity:0.95;">
+                <img src="/img/logos/mastercard.png" alt="Mastercard" style="height:22px;opacity:0.95;">
+                <img src="/img/logos/momo.jpeg" alt="Mobile Money" style="height:22px;opacity:0.95;">
+            </div>
+            <div class="socials">
+                <small style="color:#9aa4b2;margin-right:0.5rem">Follow us:</small>
+                <a href="www.facebook.com"><img src="/img/logos/facebook.png" alt="Facebook"></a>
+                <a href="www.x.com"><img src="/img/logos/twitter.png" alt="Twitter"></a>
+                <a href="www.instagram.com"><img src="/img/logos/instagram.png" alt="Instagram"></a>
+            </div>
+            <div style="width:100%;text-align: center;color:#9aa4b2; margin-top:0.6rem" >&copy; 2026 Konix Markit. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script>
+        (function(){
+            //slider
+            const slider = document.getElementById('productSlider');
+            window.scrollSlider = function(direction){
+                if(!slider) return;
+                const card = slider.querySelector('.product-card');
+                const gap = 16;
+                const scrollAmount = card ? (card.clientWidth + gap) : 300;
+                slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+            };
+            //add cart
+            const addButtons = document.querySelectorAll('.add-to-cart');
+            const cartCountEl = document.querySelector('.count-cart');
+            const smsCountEl = document.querySelector('.count-sms');
+
+            function getCount(key){ return parseInt(localStorage.getItem(key) || '0', 10); }
+            function setCount(key, val){ localStorage.setItem(key, String(val)); }
+
+            function updateUI(){
+                if(cartCountEl) cartCountEl.textContent = getCount('konix_cart');
+                if(smsCountEl) smsCountEl.textContent = getCount('konix_sms');
+            }
+
+            function getCartItems(){ try{ return JSON.parse(localStorage.getItem('konix_cart_items')||'[]'); }catch(e){ return []; } }
+            function setCartItems(items){ localStorage.setItem('konix_cart_items', JSON.stringify(items)); }
+
+            addButtons.forEach(btn => {
+                btn.addEventListener('click', function(){
+                    // identify the product card
+                    const card = btn.closest('.product-card, .items-card');
+                    const nameEl = card && card.querySelector('h4');
+                    const imgEl = card && card.querySelector('img');
+                    const priceSpan = card && card.querySelector('p span');
+                    const name = nameEl ? nameEl.textContent.trim() : 'Item';
+                    const img = imgEl ? imgEl.getAttribute('src') : '';
+                    const priceText = priceSpan ? priceSpan.textContent : (card ? (card.querySelector('.price') && card.querySelector('.price').textContent) : '0');
+                    const price = parseFloat((priceText || '').replace(/[^0-9.]/g, '')) || 0;
+
+                    // load current items and merge
+                    const items = getCartItems();
+                    // try to find an existing item by name+price
+                    const existing = items.find(i => String(i.name) === String(name) && Number(i.price) === Number(price));
+                    if(existing){ existing.qty = (existing.qty || 1) + 1; }
+                    else {
+                        const id = 'p-' + Date.now() + '-' + Math.floor(Math.random()*900 + 100);
+                        items.push({ id, name, desc: '', price: price, qty: 1, img });
+                    }
+                    setCartItems(items);
+
+                    // update simple counter and UI feedback
+                    const current = getCount('konix_cart');
+                    setCount('konix_cart', current + 1);
+                    updateUI();
+                    const original = btn.textContent;
+                    btn.textContent = 'Added';
+                    btn.disabled = true;
+                    setTimeout(()=>{ btn.textContent = original; btn.disabled = false; }, 900);
+                });
+            });
+
+            // Search functionality
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = document.getElementById('search-input');
+
+            // toggle search overlay on small screens
+            function toggleSearch(){
+                const btn = document.querySelector('.search-toggle');
+                const form = document.querySelector('.search');
+                if(!form || !btn) return;
+                const isOpen = form.classList.toggle('open');
+                btn.setAttribute('aria-expanded', String(isOpen));
+                if(isOpen){ setTimeout(()=>{ searchInput && searchInput.focus(); }, 80); }
+            }
+            window.toggleSearch = toggleSearch;
+
+            function filterCards(query){
+                const q = (query || '').trim().toLowerCase();
+                const cards = document.querySelectorAll('.product-card, .items-card');
+                cards.forEach(card => {
+                    const titleEl = card.querySelector('h4');
+                    const title = titleEl ? titleEl.textContent.toLowerCase() : '';
+                    if(!q || title.includes(q)) card.style.display = '';
+                    else card.style.display = 'none';
+                });
+            }
+
+            // derive category from image src and set as data-category on each card
+            function inferAndAttachCategories(){
+                const cards = document.querySelectorAll('.product-card, .items-card');
+                cards.forEach(card => {
+                    const img = card.querySelector('img');
+                    if(!img) return;
+                    const src = img.getAttribute('src') || '';
+                    const m = src.match(/img\/(?:%2F)?([^\/]+)\//i) || src.match(/\/img\/([^\/]+)\//i);
+                    let cat = m && m[1] ? m[1] : '';
+                    cat = cat.replace(/[-_]/g, ' ').trim();
+                    if(cat) card.dataset.category = cat;
+                });
+            }
+
+            // build categories dropdown from discovered categories
+            function buildCategoriesDropdown(){
+                inferAndAttachCategories();
+                const cards = Array.from(document.querySelectorAll('.product-card, .items-card'));
+                const cats = new Set();
+                cards.forEach(c => { if(c.dataset.category) cats.add(c.dataset.category); });
+                const dropdown = document.querySelector('.categories-dropdown');
+                if(!dropdown) return;
+                dropdown.innerHTML = '';
+                // add 'All' option
+                const allLi = document.createElement('li');
+                const allBtn = document.createElement('button');
+                allBtn.type = 'button'; allBtn.textContent = 'All Categories'; allBtn.dataset.cat = '';
+                allBtn.addEventListener('click', ()=>{ filterByCategory(''); closeCategoryMenu(); });
+                allLi.appendChild(allBtn); dropdown.appendChild(allLi);
+                Array.from(cats).sort().forEach(cat => {
+                    const li = document.createElement('li');
+                    const btn = document.createElement('button');
+                    btn.type = 'button'; btn.textContent = cat; btn.dataset.cat = cat;
+                    btn.addEventListener('click', ()=>{ filterByCategory(cat); closeCategoryMenu(); });
+                    li.appendChild(btn);
+                    dropdown.appendChild(li);
+                });
+            }
+
+            function filterByCategory(cat){
+                const q = (cat || '').trim().toLowerCase();
+                const cards = document.querySelectorAll('.product-card, .items-card');
+                cards.forEach(card => {
+                    const c = (card.dataset.category || '').toLowerCase();
+                    if(!q || c === q) card.style.display = '';
+                    else card.style.display = 'none';
+                });
+            }
+            //dropdown
+            function closeCategoryMenu(){
+                const holder = document.querySelector('.has-dropdown');
+                const btn = holder && holder.querySelector('.drop-btn');
+                const dropdown = holder && holder.querySelector('.categories-dropdown');
+                if(holder) holder.classList.remove('open');
+                if(btn) btn.setAttribute('aria-expanded','false');
+                if(dropdown) dropdown.setAttribute('aria-hidden','true');
+            }
+
+            // wire dropdown toggle for desktop/mobile
+            (function wireAllDropdowns(){
+                const holders = document.querySelectorAll('.has-dropdown');
+                if(!holders || holders.length === 0) return;
+                holders.forEach(holder => {
+                    const btn = holder.querySelector('.drop-btn');
+                    const dropdown = holder.querySelector('.categories-dropdown, .profile-dropdown');
+                    btn && btn.addEventListener('click', function(e){
+                        // toggle only this holder
+                        const isOpen = holder.classList.toggle('open');
+                        btn.setAttribute('aria-expanded', String(isOpen));
+                        if(dropdown) dropdown.setAttribute('aria-hidden', String(!isOpen));
+                    });
+                });
+                // close any open dropdown when clicking outside
+                document.addEventListener('click', function(e){
+                    holders.forEach(holder => {
+                        if(!holder.contains(e.target)){
+                            holder.classList.remove('open');
+                            const btn = holder.querySelector('.drop-btn'); if(btn) btn.setAttribute('aria-expanded','false');
+                            const dd = holder.querySelector('.categories-dropdown, .profile-dropdown'); if(dd) dd.setAttribute('aria-hidden','true');
+                        }
+                    });
+                });
+            })();
+
+            // build categories when DOM is ready
+            buildCategoriesDropdown();
+
+            if(searchForm){
+                searchForm.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    const q = searchInput ? searchInput.value.trim() : '';
+                    // snapshot current visible products to localStorage so search page can render results
+                    try{
+                        const cards = Array.from(document.querySelectorAll('.product-card, .items-card'));
+                        const products = cards.map((card, idx) => {
+                            const titleEl = card.querySelector('h4');
+                            const imgEl = card.querySelector('img');
+                            const priceSpan = card.querySelector('p span');
+                            const title = titleEl ? titleEl.textContent.trim() : ('Item ' + (idx+1));
+                            const img = imgEl ? imgEl.getAttribute('src') : '';
+                            const priceText = priceSpan ? priceSpan.textContent : '';
+                            const price = parseFloat((priceText || '').replace(/[^0-9.]/g, '')) || 0;
+                            return { id: 'p-' + idx + '-' + Date.now(), name: title, img, price };
+                        });
+                        localStorage.setItem('konix_products_snapshot', JSON.stringify(products));
+                        localStorage.setItem('konix_last_search', q);
+                    }catch(err){ console.warn('Could not snapshot products for search', err); }
+                    // navigate to search page with query param
+                    window.location.href = 'search.html?q=' + encodeURIComponent(q);
+                });
+            }
+
+            // hamburger menu using user-provided toggleMenu()
+            const navbarEl = document.querySelector('.navbar');
+            function toggleMenu(){
+                const btn = document.querySelector('.hamburger');
+                if(!btn || !navbarEl) return;
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', String(!expanded));
+                navbarEl.classList.toggle('open');
+            }
+            window.toggleMenu = toggleMenu;
+            // close nav when a link is clicked (mobile)
+            document.querySelectorAll('.nav-link a').forEach(a => {
+                a.addEventListener('click', () => { navbarEl.classList.remove('open'); const btn=document.querySelector('.hamburger'); if(btn) btn.setAttribute('aria-expanded','false'); });
+            });
+            // ensure menu closes on resize to desktop
+            window.addEventListener('resize', function(){ if(window.innerWidth > 800){ navbarEl.classList.remove('open'); const btn=document.querySelector('.hamburger'); if(btn) btn.setAttribute('aria-expanded','false'); } });
+
+            // initialize storage values if absent
+            if(localStorage.getItem('konix_cart') === null) setCount('konix_cart', 0);
+            if(localStorage.getItem('konix_sms') === null) setCount('konix_sms', 0);
+            updateUI();
+
+            // Newsletter signup handler
+            const newsletterForm = document.getElementById('newsletterForm');
+            if(newsletterForm){
+                newsletterForm.addEventListener('submit', function(e){
+                    e.preventDefault();
+                    const input = document.getElementById('newsletterEmail');
+                    const msg = document.getElementById('newsletterMsg');
+                    const email = input ? input.value.trim() : '';
+                    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                    if(!valid){ if(msg){ msg.style.display='block'; msg.textContent='Please enter a valid email.'; } return; }
+                    const key = 'konix_newsletter';
+                    let list = [];
+                    try{ list = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e){ list = []; }
+                    if(!list.includes(email)){ list.push(email); localStorage.setItem(key, JSON.stringify(list)); }
+                    if(msg){ msg.style.display='block'; msg.textContent='Thanks — you are subscribed!'; }
+                    if(input) input.value='';
+                    setTimeout(()=>{ if(msg) msg.style.display='none'; }, 3500);
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
